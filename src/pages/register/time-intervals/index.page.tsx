@@ -6,6 +6,12 @@ import {
   Text,
   TextInput,
 } from '@ignite-ui/react'
+import { ArrowRight } from 'phosphor-react'
+import { useFieldArray, useForm, Controller } from 'react-hook-form'
+import { useRouter } from 'next/router'
+import { zodResolver } from '@hookform/resolvers/zod'
+import * as z from 'zod'
+
 import { Container, Header } from '../styles'
 import {
   IntervalBox,
@@ -15,12 +21,9 @@ import {
   IntervalsContainer,
   FormError,
 } from './styles'
-import { ArrowRight } from 'phosphor-react'
-import { useFieldArray, useForm, Controller } from 'react-hook-form'
 import { getWeekDays } from '@/src/utils/get-week-days'
-import * as z from 'zod'
-import { zodResolver } from '@hookform/resolvers/zod'
 import { convertTimeInMinutes } from '@/src/utils/convert-time-in-minutes'
+import { api } from '@/src/lib/axios'
 
 const timeIntervalsFormSchema = z.object({
   intervals: z
@@ -41,8 +44,8 @@ const timeIntervalsFormSchema = z.object({
       return intervals.map((interval) => {
         return {
           weekDay: interval.weekDay,
-          startTimeMinutes: convertTimeInMinutes(interval.startTime),
-          endTimeMinutes: convertTimeInMinutes(interval.endTime),
+          startTimeInMinutes: convertTimeInMinutes(interval.startTime),
+          endTimeInMinutes: convertTimeInMinutes(interval.endTime),
         }
       })
     })
@@ -51,7 +54,7 @@ const timeIntervalsFormSchema = z.object({
         return intervals.every(
           // se todos tem uma diferença de pelomenos uma hora
           (interval) =>
-            interval.endTimeMinutes - 60 >= interval.startTimeMinutes,
+            interval.endTimeInMinutes - 60 >= interval.startTimeInMinutes,
         )
       },
       {
@@ -92,11 +95,17 @@ export default function TimeIntervals() {
     control,
   })
 
+  const router = useRouter()
+
   const intervals = watch('intervals')
 
-  function handleSetInterval(data: TimeIntervalsFormOutput) {
-    console.log(data)
-    console.log(errors)
+  async function handleSetInterval(data: any) {
+    const { intervals } = data as TimeIntervalsFormOutput
+
+    console.log('false', intervals)
+    await api.post('/users/time-intervals', { intervals })
+
+    await router.push('/register/update-profile')
   }
   return (
     <Container>
@@ -108,7 +117,6 @@ export default function TimeIntervals() {
         </Text>
         <MultiStep size={4} currentStep={3} />
       </Header>
-      {/* @ts-ignore */}
       <IntervalBox as="form" onSubmit={handleSubmit(handleSetInterval)}>
         <IntervalsContainer>
           {fields?.map((item, index) => {
