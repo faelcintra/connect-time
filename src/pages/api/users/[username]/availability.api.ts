@@ -33,7 +33,7 @@ export default async function handle(
 
   if (isPastDate) {
     // caso a data passada no params seja anterior ao dia atual, retorna sem horarios disponiveis
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availability: [] })
   }
 
   // TimeInterval x Scheduling => lógica de cross entre TimeInterval (intervalo de tempo disponivel que o usuario selecionou), com os schedulings
@@ -47,7 +47,7 @@ export default async function handle(
 
   // caso nao tenha horarios disponiveis no dia, retorna vazio
   if (!userAvailability) {
-    return res.json({ availability: [] })
+    return res.json({ possibleTimes: [], availability: [] })
   }
 
   // caso tenho pelo menos um horario disponivel no dia
