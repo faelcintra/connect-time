@@ -85,5 +85,5 @@ model Scheduling {
 
   user_id String
 
-  @@map("Schedulings")
+  @@map("schedulings")
 }
